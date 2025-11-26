@@ -1,4 +1,4 @@
-# 🎯 Todo List DApp - Group 4
+# Todo List DApp - Group 4
 
 ## Project Title and Group Members
 
@@ -102,7 +102,7 @@ python3 -c "from web3 import Web3; w3 = Web3(Web3.HTTPProvider('http://127.0.0.1
 
 ---
 
-## 🚀 Usage Instructions
+## Usage Instructions
 
 ### Step 1: Deploy the Contract
 Deploy the smart contract to the local Ganache blockchain:
@@ -117,7 +117,7 @@ python deploy.py
    Balance: 100 ETH
 ✅ Contract deployed successfully!
    Address: 0x46798514dCd31eE9678a59b69b52B03865681387
-   📁 Address saved to: contract_address.txt
+   Address saved to: contract_address.txt
 ```
 
 ### Step 2: Interact with the Contract
@@ -142,7 +142,7 @@ Options:
 ```
 Enter choice (1-5): 2
 Enter task description: Buy groceries
-📤 Adding task: 'Buy groceries'
+Adding task: 'Buy groceries'
    TX Hash: 0x1234...
    ✅ Success!
 ```
@@ -166,7 +166,7 @@ Total: 3 | Completed: 1 | Pending: 2
 Enter choice (1-5): 3
 [Task list displayed]
 Enter task index to complete: 1
-📤 Completing task 1
+Completing task 1
    ✅ Success!
 ```
 
@@ -175,13 +175,13 @@ Enter task index to complete: 1
 Enter choice (1-5): 4
 [Task list displayed]
 Enter task index to delete: 2
-📤 Deleting task 2
+Deleting task 2
    ✅ Success!
 ```
 
 ---
 
-## 📝 Smart Contract Functions
+## Smart Contract Functions
 
 ### Core Functions
 
@@ -269,7 +269,7 @@ event TaskDeleted(uint256 indexed taskId, uint256 timestamp);
 
 ---
 
-## ✅ Testing Instructions
+## Testing Instructions
 
 ### How to Run Tests
 
@@ -298,27 +298,27 @@ pytest test_contract.py -v --cov=interact --cov=deploy
 The test suite includes **15+ comprehensive tests** across the following categories:
 
 #### TestAddTask (3 tests)
-- ✅ `test_add_single_task`: Verify a single task is added correctly
-- ✅ `test_add_multiple_tasks`: Verify multiple tasks can be added
-- ✅ `test_add_task_with_empty_description_fails`: Verify empty descriptions are rejected
+- `test_add_single_task`: Verify a single task is added correctly
+- `test_add_multiple_tasks`: Verify multiple tasks can be added
+- `test_add_task_with_empty_description_fails`: Verify empty descriptions are rejected
 
 #### TestCompleteTask (3 tests)
-- ✅ `test_complete_task`: Verify task can be marked as completed
-- ✅ `test_cannot_complete_already_completed`: Verify double completion is prevented
-- ✅ `test_complete_nonexistent_task_fails`: Verify invalid index fails
+- `test_complete_task`: Verify task can be marked as completed
+- `test_cannot_complete_already_completed`: Verify double completion is prevented
+- `test_complete_nonexistent_task_fails`: Verify invalid index fails
 
 #### TestDeleteTask (3 tests)
-- ✅ `test_delete_task`: Verify task can be deleted
-- ✅ `test_delete_task_shifts_array`: Verify array elements shift correctly after deletion
-- ✅ `test_delete_nonexistent_task_fails`: Verify invalid index fails
+- `test_delete_task`: Verify task can be deleted
+- `test_delete_task_shifts_array`: Verify array elements shift correctly after deletion
+- `test_delete_nonexistent_task_fails`: Verify invalid index fails
 
 #### TestViewTasks (3 tests)
-- ✅ `test_get_task_count`: Verify task count is accurate
-- ✅ `test_get_all_tasks`: Verify all tasks are returned with correct structure
-- ✅ `test_get_completed_count`: Verify completed count is tracked
+- `test_get_task_count`: Verify task count is accurate
+- `test_get_all_tasks`: Verify all tasks are returned with correct structure
+- `test_get_completed_count`: Verify completed count is tracked
 
 #### TestTaskProgress (1 test)
-- ✅ `test_task_progress_statistics`: Verify statistics update correctly
+-  `test_task_progress_statistics`: Verify statistics update correctly
 
 ### What Each Test Validates
 
@@ -356,7 +356,7 @@ test_contract.py::TestTaskProgress::test_task_progress_statistics PASSED
 
 ---
 
-## 🔍 Project Structure
+##  Project Structure
 
 ```
 Group4_TodoList/
@@ -373,7 +373,7 @@ Group4_TodoList/
 
 ---
 
-## 🐛 Troubleshooting
+##  Troubleshooting
 
 ### Error: "Failed to connect to Ganache"
 **Solution:** 
@@ -414,7 +414,7 @@ Group4_TodoList/
 
 ---
 
-## 🔐 Security Features
+##  Security Features
 
 - ✅ **Owner Verification:** Only contract owner can modify tasks
 - ✅ **Input Validation:** Non-empty, length-limited descriptions
