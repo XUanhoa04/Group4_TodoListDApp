@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List DApp - Group 4</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --accent: #FFE66D;
+            --dark: #2C3E50;
+            --light: #F8F9FF;
+            --gray: #95A5A6;
+            --card-bg: #FFFFFF;
+            --shadow: 0 4px 20px rgba(0,0,0,0.08);
+            --shadow-hover: 0 8px 30px rgba(0,0,0,0.12);
+        }
+        
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #F8F9FF 0%, #FFF9E6 100%);
+            color: var(--dark);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        #connectBtn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, var(--primary) 0%, #FF5252 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+        
+        #connectBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+        
+        .stat-label {
+            color: var(--gray);
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .add-task-section {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+        
+        .add-task-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+        
+        #addForm {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            align-items: end;
+        }
+        
+        .input-wrapper {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .input-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--gray);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        #taskInput {
+            padding: 12px 15px;
+            border: 2px solid #E0E0E0;
+            border-radius: 10px;
+            background: var(--light);
+            color: var(--dark);
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+        
+        #taskInput:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
+            background: white;
+        }
+        
+        #taskInput::placeholder {
+            color: var(--gray);
+        }
+        
+        #addBtn {
+            padding: 12px 28px;
+            background: linear-gradient(135deg, var(--secondary) 0%, #00BDB8 100%);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+        
+        #addBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+        
+        #addBtn:active {
+            transform: translateY(0);
+        }
+        
+        .view-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .view-btn {
+            padding: 10px 16px;
+            border: 2px solid #E0E0E0;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            color: var(--gray);
+        }
+        
+        .view-btn.active {
+            background: linear-gradient(135deg, var(--primary) 0%, #FF5252 100%);
+            border-color: transparent;
+            color: white;
+        }
+        
+        .tasks-section {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+        }
+        
+        .date-group {
+            margin-bottom: 25px;
+        }
+        
+        .date-header {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--accent);
+        }
+        
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .task-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            background: var(--light);
+            border-radius: 12px;
+            border-left: 4px solid var(--secondary);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .task-card:hover {
+            background: white;
+            box-shadow: var(--shadow);
+            transform: translateX(5px);
+        }
+        
+        .task-card.completed {
+            opacity: 0.6;
+            background: #F0F0F0;
+            border-left-color: var(--gray);
+        }
+        
+        .task-card.completed .task-desc {
+            text-decoration: line-through;
+            color: var(--gray);
+        }
+        
+        .checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--secondary);
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .task-card.completed .checkbox {
+            background: var(--secondary);
+            border-color: var(--secondary);
+        }
+        
+        .checkbox::after {
+            content: '✓';
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            opacity: 0;
+        }
+        
+        .task-card.completed .checkbox::after {
+            opacity: 1;
+        }
+        
+        .task-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .task-desc {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 4px;
+            word-break: break-word;
+        }
+        
+        .task-meta {
+            font-size: 12px;
+            color: var(--gray);
+            display: flex;
+            gap: 12px;
+        }
+        
+        .task-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .task-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .task-btn-delete {
+            background: rgba(255, 107, 107, 0.1);
+            color: var(--primary);
+        }
+        
+        .task-btn-delete:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray);
+        }
+        
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        
+        .empty-text {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        #status {
+            margin-top: 20px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 600;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .status-success {
+            background: rgba(78, 205, 196, 0.1);
+            color: var(--secondary);
+        }
+        
+        .status-error {
+            background: rgba(255, 107, 107, 0.1);
+            color: var(--primary);
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #E0E0E0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+            transition: width 0.3s ease;
+        }
+        
+        @media (max-width: 640px) {
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            #addForm {
+                grid-template-columns: 1fr;
+            }
+            
+            #addBtn {
+                width: 100%;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">📋 Todo List</div>
+        <div class="header-actions">
+            <button id="connectBtn">🔗 Connect Wallet</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Tasks</div>
+                <div class="stat-value" id="totalTasks">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Completed</div>
+                <div class="stat-value" id="completedTasks">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Progress</div>
+                <div style="margin-top: 10px;">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                    </div>
+                    <div style="font-size: 12px; color: var(--gray); margin-top: 6px;" id="progressText">0%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Task Section -->
+        <div class="add-task-section">
+            <div class="add-task-title">✨ Add New Task</div>
+            <form id="addForm">
+                <div class="input-wrapper">
+                    <label class="input-label">Task Description</label>
+                    <input type="text" id="taskInput" placeholder="What needs to be done?" maxlength="256">
+                </div>
+                <button type="button" id="addBtn">Add Task</button>
+            </form>
+        </div>
+
+        <!-- View Controls -->
+        <div class="view-controls">
+            <button class="view-btn active" data-view="all">📅 All Tasks</button>
+            <button class="view-btn" data-view="today">📍 Today</button>
+            <button class="view-btn" data-view="pending">⭕ Pending</button>
+            <button class="view-btn" data-view="completed">✅ Completed</button>
+        </div>
+
+        <!-- Tasks Display -->
+        <div class="tasks-section">
+            <div id="taskList"></div>
+            <div id="status"></div>
+        </div>
+    </div>
+
+    <script>
+        const CONTRACT_ADDRESS = "0xC939673B36dc420E90409a4eC15e3dcA559B800f";
+        const CONTRACT_ABI = [
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_description",
+				"type": "string"
+			}
+		],
+		"name": "addTask",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_index",
+				"type": "uint256"
+			}
+		],
+		"name": "completeTask",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_index",
+				"type": "uint256"
+			}
+		],
+		"name": "deleteTask",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "taskId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "description",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "timestamp",
+				"type": "uint256"
+			}
+		],
+		"name": "TaskAdded",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "taskId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "timestamp",
+				"type": "uint256"
+			}
+		],
+		"name": "TaskCompleted",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "taskId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "timestamp",
+				"type": "uint256"
+			}
+		],
+		"name": "TaskDeleted",
+		"type": "event"
+	},
+	{
+		"inputs": [],
+		"name": "getCompletedCount",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_index",
+				"type": "uint256"
+			}
+		],
+		"name": "getTask",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "string",
+						"name": "description",
+						"type": "string"
+					},
+					{
+						"internalType": "bool",
+						"name": "completed",
+						"type": "bool"
+					},
+					{
+						"internalType": "uint256",
+						"name": "createdAt",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "completedAt",
+						"type": "uint256"
+					}
+				],
+				"internalType": "struct TodoList.Task",
+				"name": "",
+				"type": "tuple"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getTaskCount",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getTasks",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "string",
+						"name": "description",
+						"type": "string"
+					},
+					{
+						"internalType": "bool",
+						"name": "completed",
+						"type": "bool"
+					},
+					{
+						"internalType": "uint256",
+						"name": "createdAt",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "completedAt",
+						"type": "uint256"
+					}
+				],
+				"internalType": "struct TodoList.Task[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "tasks",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "description",
+				"type": "string"
+			},
+			{
+				"internalType": "bool",
+				"name": "completed",
+				"type": "bool"
+			},
+			{
+				"internalType": "uint256",
+				"name": "createdAt",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "completedAt",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+]
+
+
+        let web3, contract, account;
+        let currentView = 'all';
+
+        function showStatus(msg, isError = false) {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = msg;
+            statusEl.className = isError ? 'status-error' : 'status-success';
+            setTimeout(() => statusEl.textContent = '', 5000);
+        }
+
+        function formatDate(timestamp) {
+            const date = new Date(Number(timestamp) * 1000);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const taskDate = new Date(date);
+            taskDate.setHours(0, 0, 0, 0);
+            
+            const diffTime = taskDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 0) return 'Today';
+            if (diffDays === 1) return 'Tomorrow';
+            if (diffDays === -1) return 'Yesterday';
+            if (diffDays < 0) return date.toLocaleDateString('vi-VN');
+            return date.toLocaleDateString('vi-VN');
+        }
+
+        function groupTasksByDate(tasks) {
+            const grouped = {};
+            tasks.forEach((task, index) => {
+                const date = formatDate(task[2]);
+                if (!grouped[date]) grouped[date] = [];
+                grouped[date].push({ ...task, index });
+            });
+            return grouped;
+        }
+
+        function filterTasks(tasks) {
+            if (currentView === 'today') {
+                return tasks.filter(t => formatDate(t[2]) === 'Today');
+            }
+            if (currentView === 'pending') {
+                return tasks.filter(t => !t[1]);
+            }
+            if (currentView === 'completed') {
+                return tasks.filter(t => t[1]);
+            }
+            return tasks;
+        }
+
+        async function loadTasks() {
+            if (!contract) return;
+
+            try {
+                const tasks = await contract.methods.getTasks().call();
+                const total = Number(await contract.methods.getTaskCount().call());
+                const completed = Number(await contract.methods.getCompletedCount().call());
+
+                document.getElementById('totalTasks').textContent = total;
+                document.getElementById('completedTasks').textContent = completed;
+                
+                const progress = total === 0 ? 0 : Math.round((completed / total) * 100);
+                document.getElementById('progressFill').style.width = progress + '%';
+                document.getElementById('progressText').textContent = progress + '%';
+
+                const filtered = filterTasks(tasks);
+                const grouped = groupTasksByDate(filtered);
+                const taskList = document.getElementById('taskList');
+                
+                if (filtered.length === 0) {
+                    taskList.innerHTML = '<div class="empty-state"><div class="empty-icon">🎉</div><div class="empty-text">No tasks yet. Let\'s get started!</div></div>';
+                    return;
+                }
+
+                let html = '';
+                const sortedDates = Object.keys(grouped).sort((a, b) => {
+                    const order = { 'Today': 0, 'Tomorrow': 1, 'Yesterday': 2 };
+                    return (order[a] ?? 999) - (order[b] ?? 999);
+                });
+
+                sortedDates.forEach(date => {
+                    html += `<div class="date-group"><div class="date-header">${date}</div><div class="task-list">`;
+                    
+                    grouped[date].forEach(task => {
+                        const time = new Date(Number(task[2]) * 1000).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+                        const completedTime = task[1] ? new Date(Number(task[3]) * 1000).toLocaleString('vi-VN') : '';
+                        
+                        html += `
+                            <div class="task-card ${task[1] ? 'completed' : ''}">
+                                <div class="checkbox" onclick="completeTask(${task.index})"></div>
+                                <div class="task-info">
+                                    <div class="task-desc">${task[0]}</div>
+                                    <div class="task-meta">
+                                        <span>🕐 ${time}</span>
+                                        ${task[1] ? `<span>✓ Completed</span>` : ''}
+                                    </div>
+                                </div>
+                                <div class="task-actions">
+                                    <button class="task-btn task-btn-delete" onclick="deleteTask(${task.index})">🗑️</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div></div>';
+                });
+
+                taskList.innerHTML = html;
+            } catch (error) {
+                console.error('Load error:', error);
+                showStatus('Failed to load tasks', true);
+            }
+        }
+
+        async function addTask(desc) {
+            if (!contract || !account) {
+                showStatus('Please connect wallet first', true);
+                return;
+            }
+
+            try {
+                showStatus('Adding task...');
+                await contract.methods.addTask(desc).send({ from: account, gas: 300000 });
+                document.getElementById('taskInput').value = '';
+                await loadTasks();
+                showStatus('Task added successfully! ✨');
+            } catch (error) {
+                showStatus('Failed to add task: ' + error.message, true);
+            }
+        }
+
+        async function completeTask(index) {
+            if (!contract || !account) {
+                showStatus('Please connect wallet first', true);
+                return;
+            }
+
+            try {
+                showStatus('Completing task...');
+                await contract.methods.completeTask(index).send({ from: account, gas: 300000 });
+                await loadTasks();
+                showStatus('Task completed! 🎉');
+            } catch (error) {
+                showStatus('Failed: ' + error.message, true);
+            }
+        }
+
+        async function deleteTask(index) {
+            if (!confirm('Delete this task?')) return;
+
+            try {
+                showStatus('Deleting task...');
+                await contract.methods.deleteTask(index).send({ from: account, gas: 300000 });
+                await loadTasks();
+                showStatus('Task deleted!');
+            } catch (error) {
+                showStatus('Failed: ' + error.message, true);
+            }
+        }
+
+        async function init() {
+            if (!window.ethereum) {
+                alert('Please install MetaMask');
+                return;
+            }
+
+            try {
+                web3 = new Web3(window.ethereum);
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                account = accounts[0];
+
+                const chainId = await web3.eth.getChainId();
+                if (chainId !== 1337) {
+                    await window.ethereum.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: '0x539' }]
+                    });
+                }
+
+                contract = new web3.eth.Contract(CONTRACT_ABI, CONTRACT_ADDRESS);
+                document.getElementById('connectBtn').textContent = `✅ ${account.slice(0,6)}...${account.slice(-4)}`;
+                document.getElementById('connectBtn').style.background = 'linear-gradient(135deg, #4ECDC4 0%, #00BDB8 100%)';
+                
+                await loadTasks();
+                showStatus('Connected successfully! 🚀');
+            } catch (error) {
+                showStatus('Connection failed: ' + error.message, true);
+            }
+        }
+
+        // Event Listeners
+        document.getElementById('connectBtn').addEventListener('click', init);
+        
+        document.getElementById('addBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            const desc = document.getElementById('taskInput').value.trim();
+            desc ? addTask(desc) : showStatus('Please enter a task', true);
+        });
+
+        document.getElementById('taskInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') document.getElementById('addBtn').click();
+        });
+
+        document.querySelectorAll('.view-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                currentView = e.target.dataset.view;
+                await loadTasks();
+            });
+        });
+
+        if (window.ethereum?.selectedAddress) {
+            init();
+        }
+    </script>
+</body>
+</html>
