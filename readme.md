@@ -6,13 +6,6 @@
 
 **Course:** DS 441 A - Blockchain Development
 
-**Group Number:** Group 4
-
-### Group 4 Members
-  - Le Dinh Hoai Bao (Student ID: 2821110675)
-  - Cai Xuan Hoa (Student ID: 28211149417)
-  - Le Duy Khanh (Student ID: 28211105837)
-
 ---
 
 ## Project Description
